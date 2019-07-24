@@ -28,7 +28,7 @@ class GraphDataset(InMemoryDataset):
 
     def process(self):
         # Read data into huge `Data` list.
-        graph_ind = np.loadtxt(self.raw_file('graph_indicator'))
+        graph_ind = np.loadtxt(self.raw_file('graph_indicator'), dtype='int')
         all_edges = np.loadtxt(self.raw_file('A'), delimiter=',')
         all_x = np.loadtxt(self.raw_file('node_labels')).reshape(-1, 1)
         all_edge_labels = np.loadtxt(self.raw_file('edge_labels')).reshape(-1, 1)
