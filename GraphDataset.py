@@ -39,7 +39,7 @@ class GraphDataset(InMemoryDataset):
         enc_y = OneHotEncoder(categories='auto').fit(all_y)
 
         data_list = []
-        for i in range(188):
+        for i in range(graph_ind.max()):
             idx = np.argwhere(graph_ind == i + 1).flatten()
 
             x = enc_x.transform(all_x[idx]).todense()
