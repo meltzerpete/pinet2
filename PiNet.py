@@ -1,12 +1,14 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
+from sklearn import metrics
 from sklearn.metrics import accuracy_score
 from torch.nn import Module
 from torch_geometric.data import DataLoader
 from torch_geometric.datasets import TUDataset
 from torch_geometric.nn import GCNConv
-from torch_geometric.utils import add_self_loops, softmax
+from torch_geometric.utils import softmax, to_dense_batch
+
 
 class PiNet(Module):
 
@@ -17,34 +19,25 @@ class PiNet(Module):
         self.gcn_a2 = GCNConv(dims[1], dims[2])
         self.gcn_x1 = GCNConv(dims[0], dims[1])
         self.gcn_x2 = GCNConv(dims[1], dims[2])
-        self.linear2 = torch.nn.Linear(dims[2] * dims[2], dims[-1])
+        self.linear2 = torch.nn.Linear(dims[2] ** 2, dims[-1])
 
     def forward(self, data):
         x, edge_index, batch, num_graphs = data.x, data.edge_index, data.batch, data.num_graphs
 
-        edge_index, _ = add_self_loops(edge_index)
-
         a_1 = F.relu(self.gcn_a1(x, edge_index))
-        a_2 = self.gcn_a2(a_1, edge_index)
+        a_2 = softmax(self.gcn_a2(a_1, edge_index), batch)
         x_1 = F.relu(self.gcn_x1(x, edge_index))
         x_2 = F.relu(self.gcn_x2(x_1, edge_index))
 
-        out = []
-        for g in range(num_graphs):
-            x_ = x_2[~(batch == g)]
-            a_ = a_2[~(batch == g)]
-
-            a = F.softmax(torch.transpose(a_, 1, 0), -1)
-            h = torch.matmul(a, x_)
-
-            o = self.linear2(h.reshape(1, -1))
-            out.append(o)
-        batch_out = torch.cat(out, 0)
-        # print(batch_out[:2])
+        a_batch, _ = to_dense_batch(a_2, batch)
+        a_t = a_batch.transpose(2, 1)
+        x_batch, _ = to_dense_batch(x_2, batch)
+        prods = torch.bmm(a_t, x_batch)
+        flat = torch.flatten(prods, 1, -1)
+        batch_out = self.linear2(flat)
 
         final = F.softmax(batch_out, dim=-1)
 
-        # print(final[0])
         return final
 
 
@@ -82,25 +75,30 @@ def evaluate(loader):
     labels = np.concatenate(labels)
     predictions = np.concatenate(predictions).argmax(axis=1)
 
-    return accuracy_score(labels, predictions)
+    return accuracy_score(labels, predictions), metrics.confusion_matrix(labels, predictions)
 
 
 dataset = TUDataset(root='data/mutag', name='MUTAG').shuffle()
 # device = torch.device("cuda:0")
 # device = torch.device("cpu")
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-model = PiNet(dataset.num_features, 32, 32, dataset.num_classes).to(device)
+model = PiNet(dataset.num_features, 100, 100, dataset.num_classes).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=0.01)
+# optimizer = torch.optim.SGD(model.parameters(), lr=0.005)
 crit = torch.nn.CrossEntropyLoss()
 
 train_loader = DataLoader(dataset[:152], batch_size=152)
 val_loader = DataLoader(dataset[152:170], batch_size=18)
 test_loader = DataLoader(dataset[170:], batch_size=18)
 
-for epoch in range(1000):
+conf = None
+for epoch in range(200):
     loss = train()
-    train_acc = evaluate(train_loader)
-    val_acc = evaluate(val_loader)
-    test_acc = evaluate(test_loader)
+    train_acc, train_conf = evaluate(train_loader)
+    val_acc, val_conf = evaluate(val_loader)
+    test_acc, test_conf = evaluate(test_loader)
     print('Epoch: {:03d}, Loss: {:.5f}, Train Acc: {:.5f}, Val Acc: {:.5f}, Test Acc: {:.5f}'.
           format(epoch, loss, train_acc, val_acc, test_acc))
+
+print('train\n', train_conf)
+print('test\n', test_conf)
