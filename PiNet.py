@@ -6,7 +6,7 @@ from torch.nn import Module
 from torch_geometric.data import DataLoader
 from torch_geometric.datasets import TUDataset
 from torch_geometric.nn import GCNConv
-
+from torch_geometric.utils import add_self_loops, softmax
 
 class PiNet(Module):
 
@@ -20,20 +20,32 @@ class PiNet(Module):
         self.linear2 = torch.nn.Linear(dims[2] * dims[2], dims[-1])
 
     def forward(self, data):
-        x, edge_index, batch = data.x, data.edge_index, data.batch
+        x, edge_index, batch, num_graphs = data.x, data.edge_index, data.batch, data.num_graphs
 
-        a_1 = self.gcn_a1(x, edge_index)
+        edge_index, _ = add_self_loops(edge_index)
+
+        a_1 = F.relu(self.gcn_a1(x, edge_index))
         a_2 = self.gcn_a2(a_1, edge_index)
+        x_1 = F.relu(self.gcn_x1(x, edge_index))
+        x_2 = F.relu(self.gcn_x2(x_1, edge_index))
 
-        x_1 = self.gcn_a1(x, edge_index)
-        x_2 = self.gcn_a2(x_1, edge_index)
+        out = []
+        for g in range(num_graphs):
+            x_ = x_2[~(batch == g)]
+            a_ = a_2[~(batch == g)]
 
-        a = torch.transpose(a_2, 1, 0)
+            a = F.softmax(torch.transpose(a_, 1, 0), -1)
+            h = torch.matmul(a, x_)
 
-        h = torch.matmul(a, x_2)
+            o = self.linear2(h.reshape(1, -1))
+            out.append(o)
+        batch_out = torch.cat(out, 0)
+        # print(batch_out[:2])
 
-        o = self.linear2(h.flatten().reshape(1, -1))
-        return F.softmax(o, dim=-1)
+        final = F.softmax(batch_out, dim=-1)
+
+        # print(final[0])
+        return final
 
 
 def train():
@@ -75,15 +87,15 @@ def evaluate(loader):
 
 dataset = TUDataset(root='data/mutag', name='MUTAG').shuffle()
 # device = torch.device("cuda:0")
-device = torch.device("cpu")
-# device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-model = PiNet(dataset.num_features, 10, 10, dataset.num_classes).to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.005)
+# device = torch.device("cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+model = PiNet(dataset.num_features, 32, 32, dataset.num_classes).to(device)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=0.01)
 crit = torch.nn.CrossEntropyLoss()
 
-train_loader = DataLoader(dataset[:100], batch_size=2)
-val_loader = DataLoader(dataset[100:144], batch_size=2)
-test_loader = DataLoader(dataset[144:], batch_size=2)
+train_loader = DataLoader(dataset[:152], batch_size=152)
+val_loader = DataLoader(dataset[152:170], batch_size=18)
+test_loader = DataLoader(dataset[170:], batch_size=18)
 
 for epoch in range(1000):
     loss = train()
