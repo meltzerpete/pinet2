@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
+from torch.utils.data import random_split
 from sklearn import metrics
 from sklearn.metrics import accuracy_score
 from torch.nn import Module
@@ -14,11 +15,10 @@ class PiNet(Module):
 
     def __init__(self, *dims):
         super(PiNet, self).__init__()
-        self.dims = dims
-        self.gcn_a1 = GCNConv(dims[0], dims[1])
-        self.gcn_a2 = GCNConv(dims[1], dims[2])
-        self.gcn_x1 = GCNConv(dims[0], dims[1])
-        self.gcn_x2 = GCNConv(dims[1], dims[2])
+        self.gcn_a1 = GCNConv(dims[0], dims[1], improved=True)
+        self.gcn_a2 = GCNConv(dims[1], dims[2], improved=True)
+        self.gcn_x1 = GCNConv(dims[0], dims[1], improved=True)
+        self.gcn_x2 = GCNConv(dims[1], dims[2], improved=True)
         self.linear2 = torch.nn.Linear(dims[2] ** 2, dims[-1])
 
     def forward(self, data):
@@ -78,18 +78,20 @@ def evaluate(loader):
     return accuracy_score(labels, predictions), metrics.confusion_matrix(labels, predictions)
 
 
-dataset = TUDataset(root='data/mutag', name='MUTAG').shuffle()
-# device = torch.device("cuda:0")
-# device = torch.device("cpu")
+dataset = TUDataset(root='data/proteins', name='PROTEINS').shuffle()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-model = PiNet(dataset.num_features, 100, 100, dataset.num_classes).to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=0.01)
-# optimizer = torch.optim.SGD(model.parameters(), lr=0.005)
+print(f'running on {device}')
+model = PiNet(dataset.num_features, 100, 64, dataset.num_classes).to(device)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=0.001)
 crit = torch.nn.CrossEntropyLoss()
 
-train_loader = DataLoader(dataset[:152], batch_size=152)
-val_loader = DataLoader(dataset[152:170], batch_size=18)
-test_loader = DataLoader(dataset[170:], batch_size=18)
+tenth = int(len(dataset) / 10)
+
+data_train, val, test = random_split(dataset, [len(dataset) - tenth * 2, tenth, tenth])
+
+train_loader = DataLoader(data_train.dataset, batch_size=len(data_train.dataset))
+val_loader = DataLoader(val.dataset, batch_size=len(val.dataset))
+test_loader = DataLoader(test.dataset, batch_size=len(test.dataset))
 
 conf = None
 for epoch in range(200):
