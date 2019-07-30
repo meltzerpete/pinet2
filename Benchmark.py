@@ -127,6 +127,7 @@ if __name__ == '__main__':
             crit = CrossEntropyLoss()
 
             for split, (all_train_idx, test_idx) in enumerate(get_splits()):
+                print(dataset_name, model_dict['class'].__name__, split)
 
                 # convert idx to torch tensors
                 all_train_idx = torch.tensor(all_train_idx, dtype=torch.long)
