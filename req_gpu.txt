@@ -1,8 +1,0 @@
-numpy
-torch-scatter
-torch-sparse
-torch-cluster
-torch-geometric
-scikit-learn
-pandas
-matplotlib

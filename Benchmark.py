@@ -121,13 +121,14 @@ if __name__ == '__main__':
 
             dataset = TUDataset(root=f'data/{dataset_name}', name=dataset_name).shuffle()
 
-            model = model_dict['class'](dataset.num_features, 64, 64, dataset.num_classes, **model_dict['params']).to(
-                device)
-            optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=0.001)
-            crit = CrossEntropyLoss()
-
             for split, (all_train_idx, test_idx) in enumerate(get_splits()):
                 print(dataset_name, model_dict['class'].__name__, split)
+
+                model = model_dict['class'](dataset.num_features, 64, 64, dataset.num_classes,
+                                            **model_dict['params']).to(
+                    device)
+                optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=0.001)
+                crit = CrossEntropyLoss()
 
                 # convert idx to torch tensors
                 all_train_idx = torch.tensor(all_train_idx, dtype=torch.long)
@@ -146,7 +147,7 @@ if __name__ == '__main__':
                 for epoch in range(300):
                     start = time.time()
                     train_loss = train()
-                    time_for_epoch = (time.time() - start) * 10e3
+                    time_for_epoch = (time.time() - start) * 1e3
                     train_acc, train_conf = evaluate(train_loader)
                     val_acc, val_conf = evaluate(val_loader)
                     test_acc, test_conf = evaluate(test_loader)
