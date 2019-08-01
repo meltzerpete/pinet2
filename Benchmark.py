@@ -1,4 +1,5 @@
 import json
+import math
 import os.path
 import csv
 import time
@@ -81,22 +82,22 @@ if __name__ == '__main__':
         },
         {
             'class': PiNet,
-            'message_passing': 'GCN',
             'params': {
+                'message_passing': 'GCN',
                 'GCN_improved': False
             },
         },
         {
             'class': PiNet,
-            'message_passing': 'GAT',
             'params': {
+                'message_passing': 'GAT',
                 'GAT_heads': [2, 2]
             },
         },
         {
             'class': PiNet,
-            'message_passing': 'GAT',
             'params': {
+                'message_passing': 'GAT',
                 'GAT_heads': [3, 2]
             },
         },
