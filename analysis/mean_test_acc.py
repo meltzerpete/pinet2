@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 
 df = pd.read_csv('benchmark.log')
+df.drop(df[df['epoch'] < 200].index, inplace=True)
+df.reset_index(inplace=True)
 
 groups = df.groupby(['dataset_name', 'model_params', 'split'])
 
@@ -31,5 +33,5 @@ for ax, group_key in zip(axes, means.groups):
 
 
 plt.tight_layout()
-plt.savefig('mean_test_acc.pdf')
+plt.savefig('mean_test_acc_allow_200_for_convergence.pdf')
 plt.show()
