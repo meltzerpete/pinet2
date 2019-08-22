@@ -71,7 +71,8 @@ if __name__ == '__main__':
     log_file = open('small_train.log', 'a')
     writer = csv.writer(log_file)
 
-    datasets = ['MUTAG', 'PTC_MM', 'PTC_MR', 'PTC_FM', 'PTC_FR']
+    # datasets = ['MUTAG', 'PTC_MM', 'PTC_MR', 'PTC_FM', 'PTC_FR']
+    datasets = ['PROTEINS']
     models = [
         # {
         #     'class': PiNet,
@@ -103,7 +104,7 @@ if __name__ == '__main__':
         # },
     ]
     # train_sizes = [4, 8, 12, 16, 20, 24, 28, 32]
-    train_sizes = [36, 40, 44, 48, 52, 56, 60]
+    train_sizes = [10, 20, 30, 40, 50, 60]
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f'exp: {experiment_count}, running on {device}')
