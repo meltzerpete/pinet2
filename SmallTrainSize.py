@@ -104,7 +104,7 @@ if __name__ == '__main__':
         # },
     ]
     # train_sizes = [4, 8, 12, 16, 20, 24, 28, 32]
-    train_sizes = [10, 20, 30, 40, 50, 60]
+    train_sizes = [70, 80, 90, 100]
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f'exp: {experiment_count}, running on {device}')
