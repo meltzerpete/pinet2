@@ -5,13 +5,13 @@
 #$ -S /bin/bash
 
 # 1. Request a number of GPU cards, in this case 2 (the maximum)
-#$ -l gpu=2
+#$ -l gpu=1
 
 # 2. Request ten minutes of wallclock time (format hours:minutes:seconds).
-#$ -l h_rt=0:10:0
+#$ -l h_rt=1:00:0
 
 # 3. Request 1 gigabyte of RAM (must be an integer)
-#$ -l mem=1G
+#$ -l mem=8G
 
 # 4. Request 15 gigabyte of TMPDIR space (default is 10 GB)
 #$ -l tmpfs=15G
@@ -23,17 +23,25 @@
 # a necessary step with the upgraded software stack as compute nodes cannot
 # write to $HOME.
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/<your_UCL_id>/Scratch/output
+#$ -wd /home/ucabplm/Scratch/output
 
 # 7. Your work *must* be done in $TMPDIR 
 cd $TMPDIR
 
 # 8. load the cuda module (in case you are running a CUDA program
-module unload compilers mpi
-module load compilers/gnu/4.9.2
-module load cuda/7.5.18/gnu-4.9.2
+#module unload compilers mpi
+#module load compilers/gnu/4.9.2
+#module load cuda/7.5.18/gnu-4.9.2
 # 9. Run the application - the line below is just a random example.
-mygpucode
+source $HOME/.bashrc
+conda conda create --name torch
+conda activate torch
+conda install pytorch=1.1.0 torchvision=0.3.0 cudatoolkit=10.0 -c pytorch
+pip install --no-cache-dir -r $HOME/pinet2/requirements.txt
+
+python3 $HOME/pinet2/Benchmark.py > $HOME/Scratch/log
+
 # 10. Preferably, tar-up (archive) all output files onto the shared scratch area
 tar zcvf $HOME/Scratch/files_from_job_$JOB_ID.tar.gz $TMPDIR
+cp benchmark.log $HOME/Scratch/benchmark.log
 # Make sure you have given enough time for the copy to complete!
