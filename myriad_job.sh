@@ -34,12 +34,12 @@ cd $TMPDIR
 #module load cuda/7.5.18/gnu-4.9.2
 # 9. Run the application - the line below is just a random example.
 source $HOME/.bashrc
-conda conda create --name torch
+conda create --name torch
 conda activate torch
 conda install pytorch=1.1.0 torchvision=0.3.0 cudatoolkit=10.0 -c pytorch
 pip install --no-cache-dir -r $HOME/pinet2/requirements.txt
 
-python3 $HOME/pinet2/Benchmark.py > $HOME/Scratch/log
+python3 $HOME/pinet2/Benchmark.py
 
 # 10. Preferably, tar-up (archive) all output files onto the shared scratch area
 tar zcvf $HOME/Scratch/files_from_job_$JOB_ID.tar.gz $TMPDIR
