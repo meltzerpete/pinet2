@@ -67,6 +67,7 @@ def get_splits():
 
 if __name__ == '__main__':
     experiment_count = get_experiment_count('benchmark.count')
+    print(f'experiment count: {experiment_count}')
 
     log_file = open('benchmark.log', 'a')
     writer = csv.writer(log_file)
