@@ -74,34 +74,59 @@ if __name__ == '__main__':
 
     datasets = ['MUTAG', 'PTC_MM', 'PTC_MR', 'PTC_FM', 'PTC_FR', 'NCI1', 'NCI109', 'PROTEINS']
     models = [
+        # {
+        #     'class': PiNet,
+        #     'params': {
+        #         'message_passing': 'GCN',
+        #         'GCN_improved': True
+        #     }
+        # },
         {
             'class': PiNet,
             'params': {
                 'message_passing': 'GCN',
-                'GCN_improved': True
-            }
+                'GCN_improved': False,
+                'dims': [32, 32],
+            },
         },
         {
             'class': PiNet,
             'params': {
                 'message_passing': 'GCN',
-                'GCN_improved': False
+                'GCN_improved': False,
+                'dims': [64, 32],
             },
         },
         {
             'class': PiNet,
             'params': {
-                'message_passing': 'GAT',
-                'GAT_heads': [2, 2]
+                'message_passing': 'GCN',
+                'GCN_improved': False,
+                'dims': [32, 64],
             },
         },
         {
             'class': PiNet,
             'params': {
-                'message_passing': 'GAT',
-                'GAT_heads': [3, 2]
+                'message_passing': 'GCN',
+                'GCN_improved': False,
+                'dims': [64, 64],
             },
         },
+        # {
+        #     'class': PiNet,
+        #     'params': {
+        #         'message_passing': 'GAT',
+        #         'GAT_heads': [2, 2]
+        #     },
+        # },
+        # {
+        #     'class': PiNet,
+        #     'params': {
+        #         'message_passing': 'GAT',
+        #         'GAT_heads': [3, 2]
+        #     },
+        # },
     ]
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -114,8 +139,8 @@ if __name__ == '__main__':
                      'epoch',
                      'time_for_epoch(ms)',
                      'train_loss',
-                     'train_acc', 'val_acc', 'test_acc',
-                     'train_conf', 'val_conf', 'test_conf'])
+                     'train_acc', 'test_acc',
+                     'train_conf', 'test_conf'])
     log_file.flush()
 
     for dataset_name in datasets:
@@ -126,24 +151,24 @@ if __name__ == '__main__':
             for split, (all_train_idx, test_idx) in enumerate(get_splits()):
                 print(dataset_name, model_dict['class'].__name__, split)
 
-                model = model_dict['class'](dataset.num_features, 64, 64, dataset.num_classes,
+                model = model_dict['class'](num_feats=dataset.num_features, num_classes=dataset.num_classes,
                                             **model_dict['params']).to(
                     device)
                 optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=0.001)
                 crit = CrossEntropyLoss()
 
                 # convert idx to torch tensors
-                all_train_idx = torch.tensor(all_train_idx, dtype=torch.long)
+                train_idx = torch.tensor(all_train_idx, dtype=torch.long)
                 test_idx = torch.tensor(test_idx, dtype=torch.long)
 
-                train_idx, val_idx = next(StratifiedShuffleSplit(n_splits=1, test_size=0.1)
-                                          .split(np.zeros([len(all_train_idx), 1]), dataset.data.y[all_train_idx]))
+                # train_idx, val_idx = next(StratifiedShuffleSplit(n_splits=1, test_size=0.1)
+                #                           .split(np.zeros([len(all_train_idx), 1]), dataset.data.y[all_train_idx]))
 
-                train_idx = torch.tensor(train_idx, dtype=torch.long)
-                val_idx = torch.tensor(val_idx, dtype=torch.long)
+                # train_idx = torch.tensor(train_idx, dtype=torch.long)
+                # val_idx = torch.tensor(val_idx, dtype=torch.long)
 
                 train_loader = DataLoader(dataset[train_idx], batch_size=len(train_idx))
-                val_loader = DataLoader(dataset[val_idx], batch_size=len(val_idx))
+                # val_loader = DataLoader(dataset[val_idx], batch_size=len(val_idx))
                 test_loader = DataLoader(dataset[test_idx], batch_size=len(test_idx))
 
                 for epoch in range(300):
@@ -151,7 +176,7 @@ if __name__ == '__main__':
                     train_loss = train()
                     time_for_epoch = (time.time() - start) * 1e3
                     train_acc, train_conf = evaluate(train_loader)
-                    val_acc, val_conf = evaluate(val_loader)
+                    # val_acc, val_conf = evaluate(val_loader)
                     test_acc, test_conf = evaluate(test_loader)
 
                     writer.writerow([experiment_count,
@@ -162,6 +187,6 @@ if __name__ == '__main__':
                                      epoch,
                                      time_for_epoch,
                                      train_loss,
-                                     train_acc, val_acc, test_acc,
-                                     train_conf, val_conf, test_conf])
+                                     train_acc, test_acc,
+                                     train_conf, test_conf])
                     log_file.flush()
