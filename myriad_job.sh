@@ -29,14 +29,15 @@
 cd $TMPDIR
 
 # 8. load the cuda module (in case you are running a CUDA program
-#module unload compilers mpi
-#module load compilers/gnu/4.9.2
-#module load cuda/7.5.18/gnu-4.9.2
+module unload compilers mpi
+module load compilers/gnu/4.9.2
+module load cuda/10.0.130/gnu-4.9.2
+
 # 9. Run the application - the line below is just a random example.
 source $HOME/.bashrc
 conda create --name torch
 conda activate torch
-conda install pytorch=1.1.0 torchvision=0.3.0 cudatoolkit=10.0 -c pytorch
+conda install --force-reinstall pytorch=1.1 torchvision cudatoolkit=10.0 -c pytorch
 pip install --no-cache-dir -r $HOME/pinet2/requirements.txt
 
 python3 $HOME/pinet2/Benchmark.py
