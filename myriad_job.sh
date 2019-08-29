@@ -35,12 +35,13 @@ module load cuda/10.0.130/gnu-4.9.2
 
 # 9. Run the application - the line below is just a random example.
 source $HOME/.bashrc
-conda create --name torch
-conda activate torch
-conda install --force-reinstall pytorch=1.1 torchvision cudatoolkit=10.0 -c pytorch
+conda activate torch-gpu
+conda install pytorch=1.1 torchvision=0.3 cudatoolkit=10.0 -c pytorch
+pip install torch==1.1 torchvision==0.3
+pip install requests
 pip install --no-cache-dir -r $HOME/pinet2/requirements.txt
 
-python3 $HOME/pinet2/Benchmark.py
+python $HOME/pinet2/Benchmark.py
 
 # 10. Preferably, tar-up (archive) all output files onto the shared scratch area
 tar zcvf $HOME/Scratch/files_from_job_$JOB_ID.tar.gz $TMPDIR
