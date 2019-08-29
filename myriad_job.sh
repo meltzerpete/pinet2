@@ -36,10 +36,6 @@ module load cuda/10.0.130/gnu-4.9.2
 # 9. Run the application - the line below is just a random example.
 source $HOME/.bashrc
 conda activate torch-gpu
-conda install pytorch=1.1 torchvision=0.3 cudatoolkit=10.0 -c pytorch
-pip install torch==1.1 torchvision==0.3
-pip install requests
-pip install --no-cache-dir -r $HOME/pinet2/requirements.txt
 
 python $HOME/pinet2/Benchmark.py
 
