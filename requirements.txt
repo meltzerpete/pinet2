@@ -6,3 +6,4 @@ torch-geometric
 scikit-learn
 pandas
 matplotlib
+requests
