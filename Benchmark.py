@@ -57,24 +57,12 @@ def evaluate(loader):
     return accuracy_score(labels, predictions), metrics.confusion_matrix(labels, predictions).ravel()
 
 
-def get_experiment_count(file):
-    if os.path.isfile(file):
-        count = json.load(open(file, 'r')) + 1
-    else:
-        count = 0
-    json.dump(count, open(file, 'w'))
-    return count
-
-
 def get_splits():
     return StratifiedKFold(n_splits=10).split(np.zeros([len(dataset), 1]), dataset.data.y)
 
 
 if __name__ == '__main__':
-    experiment_count = get_experiment_count('benchmark.count')
-    info(f'experiment count: {experiment_count}')
 
-    log_file = open('benchmark.log', 'a')
     writer = csv.writer(sys.stdout)
 
     datasets = ['MUTAG', 'PTC_MM', 'PTC_MR', 'PTC_FM', 'PTC_FR', 'NCI1', 'NCI109', 'PROTEINS']
@@ -150,8 +138,7 @@ if __name__ == '__main__':
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     info(f'running on {device}')
-    writer.writerow([experiment_count,
-                     'dataset_name',
+    writer.writerow(['dataset_name',
                      'model',
                      'model_params',
                      'split',
@@ -160,7 +147,6 @@ if __name__ == '__main__':
                      'train_loss',
                      'train_acc', 'test_acc',
                      'train_conf', 'test_conf'])
-    log_file.flush()
 
     for dataset_name in datasets:
         for model_dict in models:
@@ -198,8 +184,7 @@ if __name__ == '__main__':
                     # val_acc, val_conf = evaluate(val_loader)
                     test_acc, test_conf = evaluate(test_loader)
 
-                    writer.writerow([experiment_count,
-                                     dataset_name,
+                    writer.writerow([dataset_name,
                                      model_dict["class"].__name__,
                                      model_dict['params'],
                                      split,
@@ -208,4 +193,3 @@ if __name__ == '__main__':
                                      train_loss,
                                      train_acc, test_acc,
                                      train_conf, test_conf])
-                    log_file.flush()
