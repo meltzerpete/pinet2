@@ -74,6 +74,9 @@ def get_args():
     parser.add_argument('--epochs', dest='epochs', type=int,
                         default=500, required=False,
                         help='sum the integers (default: 500)')
+    parser.add_argument('--lr', dest='lr', type=float,
+                        default=1e-3, required=False,
+                        help='learning rate (default: 0.001)')
 
     return parser.parse_args()
 
@@ -177,7 +180,7 @@ if __name__ == '__main__':
             model = model_dict['class'](num_feats=dataset.num_features, num_classes=dataset.num_classes,
                                         **model_dict['params']).to(
                 device)
-            optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.001)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.001)
             crit = CrossEntropyLoss()
 
             # convert idx to torch tensors
