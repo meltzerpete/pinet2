@@ -2,6 +2,7 @@ import json
 import math
 import os.path
 import csv
+import sys
 import time
 import numpy as np
 import torch
@@ -13,6 +14,10 @@ from torch_geometric.data import DataLoader
 from torch_geometric.datasets import TUDataset
 
 from PiNet import PiNet
+
+
+def info(*msg):
+    print(msg, file=sys.stderr)
 
 
 def train():
@@ -67,10 +72,10 @@ def get_splits():
 
 if __name__ == '__main__':
     experiment_count = get_experiment_count('benchmark.count')
-    print(f'experiment count: {experiment_count}')
+    info(f'experiment count: {experiment_count}')
 
     log_file = open('benchmark.log', 'a')
-    writer = csv.writer(log_file)
+    writer = csv.writer(sys.stdout)
 
     datasets = ['MUTAG', 'PTC_MM', 'PTC_MR', 'PTC_FM', 'PTC_FR', 'NCI1', 'NCI109', 'PROTEINS']
     models = [
@@ -144,7 +149,7 @@ if __name__ == '__main__':
     ]
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(f'running on {device}')
+    info(f'running on {device}')
     writer.writerow([experiment_count,
                      'dataset_name',
                      'model',
@@ -163,7 +168,7 @@ if __name__ == '__main__':
             dataset = TUDataset(root=f'data/{dataset_name}', name=dataset_name).shuffle()
 
             for split, (all_train_idx, test_idx) in enumerate(get_splits()):
-                print(dataset_name, model_dict['class'].__name__, split)
+                info(dataset_name, model_dict['class'].__name__, split)
 
                 model = model_dict['class'](num_feats=dataset.num_features, num_classes=dataset.num_classes,
                                             **model_dict['params']).to(
