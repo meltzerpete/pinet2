@@ -81,38 +81,38 @@ if __name__ == '__main__':
         #         'GCN_improved': True
         #     }
         # },
-        {
-            'class': PiNet,
-            'params': {
-                'message_passing': 'GCN',
-                'GCN_improved': False,
-                'dims': [32, 32],
-            },
-        },
-        {
-            'class': PiNet,
-            'params': {
-                'message_passing': 'GCN',
-                'GCN_improved': False,
-                'dims': [64, 32],
-            },
-        },
-        {
-            'class': PiNet,
-            'params': {
-                'message_passing': 'GCN',
-                'GCN_improved': False,
-                'dims': [32, 64],
-            },
-        },
-        {
-            'class': PiNet,
-            'params': {
-                'message_passing': 'GCN',
-                'GCN_improved': False,
-                'dims': [64, 64],
-            },
-        },
+        # {
+        #     'class': PiNet,
+        #     'params': {
+        #         'message_passing': 'GCN',
+        #         'GCN_improved': False,
+        #         'dims': [32, 32],
+        #     },
+        # },
+        # {
+        #     'class': PiNet,
+        #     'params': {
+        #         'message_passing': 'GCN',
+        #         'GCN_improved': False,
+        #         'dims': [64, 32],
+        #     },
+        # },
+        # {
+        #     'class': PiNet,
+        #     'params': {
+        #         'message_passing': 'GCN',
+        #         'GCN_improved': False,
+        #         'dims': [32, 64],
+        #     },
+        # },
+        # {
+        #     'class': PiNet,
+        #     'params': {
+        #         'message_passing': 'GCN',
+        #         'GCN_improved': False,
+        #         'dims': [64, 64],
+        #     },
+        # },
         # {
         #     'class': PiNet,
         #     'params': {
@@ -124,9 +124,23 @@ if __name__ == '__main__':
         #     'class': PiNet,
         #     'params': {
         #         'message_passing': 'GAT',
-        #         'GAT_heads': [3, 2]
+        #         'GAT_heads': [2, 5]
         #     },
         # },
+        # {
+        #     'class': PiNet,
+        #     'params': {
+        #         'message_passing': 'GAT',
+        #         'GAT_heads': [5, 2]
+        #     },
+        # },
+        {
+            'class': PiNet,
+            'params': {
+                'message_passing': 'GAT',
+                'GAT_heads': [5, 5]
+            },
+        },
     ]
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -154,7 +168,7 @@ if __name__ == '__main__':
                 model = model_dict['class'](num_feats=dataset.num_features, num_classes=dataset.num_classes,
                                             **model_dict['params']).to(
                     device)
-                optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=0.001)
+                optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.001)
                 crit = CrossEntropyLoss()
 
                 # convert idx to torch tensors
@@ -171,7 +185,7 @@ if __name__ == '__main__':
                 # val_loader = DataLoader(dataset[val_idx], batch_size=len(val_idx))
                 test_loader = DataLoader(dataset[test_idx], batch_size=len(test_idx))
 
-                for epoch in range(300):
+                for epoch in range(500):
                     start = time.time()
                     train_loss = train()
                     time_for_epoch = (time.time() - start) * 1e3

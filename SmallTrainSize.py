@@ -72,39 +72,19 @@ if __name__ == '__main__':
     writer = csv.writer(log_file)
 
     # datasets = ['MUTAG', 'PTC_MM', 'PTC_MR', 'PTC_FM', 'PTC_FR']
-    datasets = ['PROTEINS']
+    datasets = ['PROTEINS', 'PTC_MM', 'PTC_MR']
     models = [
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GCN',
-        #         'GCN_improved': True
-        #     }
-        # },
         {
             'class': PiNet,
             'params': {
                 'message_passing': 'GCN',
-                'GCN_improved': False
+                'GCN_improved': False,
+                'dims': [32, 64],
             },
         },
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GAT',
-        #         'GAT_heads': [2, 2]
-        #     },
-        # },
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GAT',
-        #         'GAT_heads': [3, 2]
-        #     },
-        # },
     ]
     # train_sizes = [4, 8, 12, 16, 20, 24, 28, 32]
-    train_sizes = [70, 80, 90, 100]
+    train_sizes = [10, 20, 30, 40, 50, 60]
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f'exp: {experiment_count}, running on {device}')
@@ -130,7 +110,8 @@ if __name__ == '__main__':
                 for split, (all_train_idx, test_idx) in enumerate(get_splits(train_size)):
                     print(dataset_name, model_dict['class'].__name__, split)
 
-                    model = model_dict['class'](dataset.num_features, 64, 64, dataset.num_classes,
+                    model = model_dict['class'](num_feats=dataset.num_features,
+                                                num_classes=dataset.num_classes,
                                                 **model_dict['params']).to(
                         device)
                     optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=0.001)

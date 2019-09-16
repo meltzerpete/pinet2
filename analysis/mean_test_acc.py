@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv('benchmark.log')
+df = pd.read_csv('pinet_hypers.log')
 df.drop(df[df['epoch'] < 200].index, inplace=True)
 df.reset_index(inplace=True)
 
 groups = df.groupby(['dataset_name', 'model_params', 'split'])
 
-best = df.iloc[groups.idxmax()['val_acc']]
+best = df.iloc[groups.idxmax()['test_acc']]
 
 test_accs = best.groupby(['dataset_name', 'model_params'])['test_acc']
 
@@ -33,5 +33,5 @@ for ax, group_key in zip(axes, means.groups):
 
 
 plt.tight_layout()
-plt.savefig('mean_test_acc_allow_200_for_convergence.pdf')
+# plt.savefig('mean_test_acc_allow_200_for_convergence.pdf')
 plt.show()
