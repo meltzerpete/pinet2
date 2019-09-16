@@ -17,7 +17,7 @@
 #$ -l tmpfs=15G
 
 # 5. Set the name of the job.
-#$ -N GPUJob
+#$ -N GAT
 
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot
