@@ -37,7 +37,7 @@ module load cuda/10.0.130/gnu-4.9.2
 source $HOME/.bashrc
 conda activate torch-gpu
 
-out_dir=$HOME/Scratch/GAT
+out_dir=$HOME/Scratch/SAGE
 mkdir -p ${out_dir}
 
 for DATASET in MUTAG PTC_MM PTC_MR PTC_FM PTC_FR PROTEINS NCI1 NCI109 ; do
