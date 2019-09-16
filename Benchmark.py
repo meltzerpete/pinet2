@@ -89,73 +89,15 @@ if __name__ == '__main__':
     writer = csv.writer(sys.stdout)
 
     models = [
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GCN',
-        #         'GCN_improved': True
-        #     }
-        # },
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GCN',
-        #         'GCN_improved': False,
-        #         'dims': [32, 32],
-        #     },
-        # },
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GCN',
-        #         'GCN_improved': False,
-        #         'dims': [64, 32],
-        #     },
-        # },
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GCN',
-        #         'GCN_improved': False,
-        #         'dims': [32, 64],
-        #     },
-        # },
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GCN',
-        #         'GCN_improved': False,
-        #         'dims': [64, 64],
-        #     },
-        # },
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GAT',
-        #         'GAT_heads': [2, 2]
-        #     },
-        # },
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GAT',
-        #         'GAT_heads': [2, 5]
-        #     },
-        # },
-        # {
-        #     'class': PiNet,
-        #     'params': {
-        #         'message_passing': 'GAT',
-        #         'GAT_heads': [5, 2]
-        #     },
-        # },
         {
             'class': PiNet,
             'params': {
                 'message_passing': 'GAT',
-                'GAT_heads': [5, 5]
+                'GAT_heads': [h1, h2],
+                'dims': [d1, d2],
+                'skip': skip
             },
-        },
+        } for skip in [True, False] for h1 in [3, 5] for h2 in [3, 5] for d1 in [10, 15] for d2 in [10, 15]
     ]
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
