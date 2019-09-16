@@ -8,7 +8,7 @@
 #$ -l gpu=1
 
 # 2. Request ten minutes of wallclock time (format hours:minutes:seconds).
-#$ -l h_rt=1:00:0
+#$ -l h_rt=48:00:00
 
 # 3. Request 1 gigabyte of RAM (must be an integer)
 #$ -l mem=8G
