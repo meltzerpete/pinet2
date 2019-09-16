@@ -1,14 +1,12 @@
-import json
-import math
-import os.path
 import csv
 import sys
 import time
+
 import numpy as np
 import torch
 from sklearn import metrics
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedKFold
 from torch.nn import CrossEntropyLoss
 from torch_geometric.data import DataLoader
 from torch_geometric.datasets import TUDataset
