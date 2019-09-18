@@ -117,7 +117,7 @@ if __name__ == '__main__':
         dataset = TUDataset(root=f'data/{args.dataset_name}', name=args.dataset_name).shuffle()
 
         for split, (all_train_idx, test_idx) in enumerate(get_splits()):
-            print(args.dataset_name, model_dict['class'].__name__, split)
+            print(args.dataset_name, model_dict, split)
 
             model = model_dict['class'](num_feats=dataset.num_features, num_classes=dataset.num_classes,
                                         **model_dict['params']).to(
