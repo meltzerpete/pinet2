@@ -40,6 +40,9 @@ conda activate torch-gpu
 out_dir=$HOME/Scratch/SAGE
 mkdir -p ${out_dir}
 
+cp -r $HOME/pinet2 pinet2SAGE
+cd pinet2SAGE
+
 for DATASET in MUTAG PTC_MM PTC_MR PTC_FM PTC_FR PROTEINS NCI1 NCI109 ; do
     python BenchmarkSAGE.py --epochs 500 --dataset ${DATASET} > ${out_dir}/${DATASET}.log
 done

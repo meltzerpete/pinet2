@@ -40,6 +40,9 @@ conda activate torch-gpu
 out_dir=$HOME/Scratch/GAT
 mkdir -p ${out_dir}
 
+cp -r $HOME/pinet2 pinet2GAT
+cd pinet2GAT
+
 for DATASET in MUTAG PTC_MM PTC_MR PTC_FM PTC_FR PROTEINS NCI1 NCI109 ; do
     python Benchmark.py --epochs 300 --dataset ${DATASET} > ${out_dir}/${DATASET}.log
 done
