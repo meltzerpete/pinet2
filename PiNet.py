@@ -41,8 +41,8 @@ class PiNet(Module):
             self.linear_a = torch.nn.Linear(skip_dims, dims[0])
             self.linear_x = torch.nn.Linear(skip_dims, dims[0])
 
-            self.mp_a2 = GATConv(dims[0], dims[1], heads=GAT_heads[1])
-            self.mp_x2 = GATConv(dims[0], dims[1], heads=GAT_heads[1])
+            self.mp_a2 = GATConv(dims[0] if skip else dims[0] * GAT_heads[0], dims[1], heads=GAT_heads[1])
+            self.mp_x2 = GATConv(dims[0] if skip else dims[0] * GAT_heads[0], dims[1], heads=GAT_heads[1])
 
             skip_dims2 = (dims[1] * GAT_heads[1]) + dims[0] if skip else dims[1] * GAT_heads[1]
 
